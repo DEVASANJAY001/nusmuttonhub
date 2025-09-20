@@ -39,6 +39,7 @@ function App() {
         if (session?.user) {
           await fetchUserRole(session.user.id)
         } else {
+          setUserRole(null)
           setLoading(false)
         }
       } catch (err) {
@@ -54,6 +55,7 @@ function App() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id)
       setUser(session?.user ?? null)
       if (session?.user) {
         await fetchUserRole(session.user.id)
@@ -68,6 +70,7 @@ function App() {
 
   const fetchUserRole = async (userId) => {
     try {
+      console.log('Fetching user role for:', userId)
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -76,14 +79,17 @@ function App() {
 
       if (error) {
         console.error('Error fetching user role:', error)
-        setUserRole(ROLES.ACCOUNTANT) // Default role
+        // If there's an error (like RLS recursion), set a default role and continue
+        setUserRole(ROLES.ACCOUNTANT)
+        setLoading(false)
       } else {
         setUserRole(data.role)
+        setLoading(false)
       }
     } catch (error) {
       console.error('Error fetching user role:', error)
-      setUserRole(ROLES.ACCOUNTANT) // Default role
-    } finally {
+      // Set default role and stop loading on any error
+      setUserRole(ROLES.ACCOUNTANT)
       setLoading(false)
     }
   }
