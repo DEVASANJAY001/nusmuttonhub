@@ -78,7 +78,7 @@ const Sidebar = ({ activeTab, setActiveTab, userRole }) => {
           <div className="user-role">
             <span className="role-label">Role:</span>
             <span className={`role-badge role-${userRole}`}>
-              {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+              {userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1) : 'Unknown'}
             </span>
           </div>
         </div>
